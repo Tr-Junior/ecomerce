@@ -1,7 +1,7 @@
 const compression = require('compression');
 const express = require('express');
 const ejs = require('ejs');
-const bodyParser = require('bodyparser');
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -33,7 +33,7 @@ app.disable('x-powered-by');
 app.use(compression());
 
 //SETUP BODY PARSER
-app.use(bodyParser.urlEncoded({ extended: false, limit: 1.5 * 1024 * 1024 }));
+app.use(bodyParser.urlencoded({ extended: false, limit: 1.5 * 1024 * 1024 }));
 app.use(bodyParser.json({ limit: 1.5 * 1024 * 1024 }));
 
 //MODELS
@@ -51,7 +51,7 @@ app.use((req, res, next) => {
 
 //ROUT - 422, 500, 401
 app.use((err, req, res, next) => {
-    res.ststus(err.status || 500);
+    res.status(err.status || 500);
     if (err.status !== 404) console.warn('ERROR: ', err.message, new Date());
     res.json({ errors: { message: err.message, status: err.status } });
 });
