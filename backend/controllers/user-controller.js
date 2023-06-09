@@ -34,16 +34,19 @@ class UserController {
     //POST /register
 
     store(req, res, next) {
-        const { name, email, password } = req.body;
+        const { name, email, password, store } = req.body;
 
-        if (!name || !email || !password) return res.status(422).json({ errors: 'Preencha todos os campos de cadastro.' })
+        if (!name || !email || !password || !store) return res.status(422).json({ errors: 'Preencha todos os campos de cadastro.' })
 
-        const user = new User({ name, email });
+        const user = new User({ name, email, store });
         user.setPassword(password);
 
         user.save()
             .then(() => res.json({ user: user.sendAuthJSON() }))
-            .catch(next);
+            .catch((err) => {
+                console.log(err);
+                next(err);
+            });
     }
 
     //PUT /
