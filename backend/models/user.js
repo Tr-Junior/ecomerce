@@ -69,7 +69,7 @@ UserSchema.methods.sendAuthJSON = function () {
         name: this.name,
         email: this.email,
         store: this.store,
-        role: this.permissions,
+        role: this.permission,
         token: this.generateToken(),
     };
 };

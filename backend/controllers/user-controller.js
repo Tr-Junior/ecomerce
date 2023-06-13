@@ -16,7 +16,8 @@ class UserController {
     //GET /:id
 
     show(req, res, next) {
-        User.findById(req.params.id).populate({ path: 'store' })
+        User.findById(req.params.id)
+            //.populate({ path: 'store' })
             .then(user => {
                 if (!user) return res.status(401).json({ errors: 'Usuário não registrado' });
                 return res.json({
@@ -84,7 +85,7 @@ class UserController {
         if (!password) return res.status(422).json({ errors: { password: 'Não pode ficar vazio' } });
         User.findOne({ email }).then((user) => {
             if (!user) return res.status(401).json({ errors: 'Usuário não registrado' });
-            if (!user.validatePassword(password)) return res.status(401).json({ errors: 'Senha invalida' });
+            if (!user.validatorPassword(password)) return res.status(401).json({ errors: 'Senha invalida' });
             return res.json({ user: user.sendAuthJSON() });
         }).catch(next);
     }
