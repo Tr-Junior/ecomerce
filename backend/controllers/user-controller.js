@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const User = mongoose.model("User");
-const sendMailRecovery = require("../helpers/email-recovery");
+const sendMail = require("../helpers/email-recovery");
 
 class UserController {
     //GET
@@ -142,7 +142,7 @@ class UserController {
                 const recoveryData = user.createTokenRecoveryPassword();
                 user.save()
                     .then(() => {
-                        sendMail({ user, recovery: recoveryData }, (error, success) => {
+                        sendMail({ user, recovery: recoveryData, email }, (error, success) => {
                             return res.render("recovery", { error, success });
                         });
                     })
@@ -197,7 +197,7 @@ class UserController {
                     success: null,
                 });
 
-            user.finalizeTokenRecoveryPassword();
+            user.finishTokenRecoveryPassword();
             user.setPassword(password);
             return user
                 .save()

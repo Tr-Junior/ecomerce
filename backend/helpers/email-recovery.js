@@ -1,3 +1,4 @@
+const nodemailer = require('nodemailer');
 const transporter = require('nodemailer').createTransport(require('../config/email'));
 const { api: link } = require('../config/index');
 
@@ -8,8 +9,8 @@ module.exports = ({ user, recovery }, cb) => {
     <p>
         Aqui está o link para redefinir sua senha. Acesse-o e digite sua nova senha:
     </p>
-    <a href="${link}/v1/api/user/recovered-password?token=${recovery.token}">
-        ${link}/v1/api/user/recovered-password?token=${recovery.token}
+    <a href="${link}/v1/api/user/password-recovered?token=${recovery.token}">
+        ${link}/v1/api/user/password-recovered?token=${recovery.token}
     </a>
     <br /><br /><hr />
     <p>
