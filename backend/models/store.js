@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
 
 const StoreSchema = mongoose.Schema({
     name: {
@@ -41,8 +42,8 @@ const StoreSchema = mongoose.Schema({
                 type: String,
                 required: true,
             },
-            required: true
-        }
+        },
+        required: true
     }
 }, { timestamps: true })
 
