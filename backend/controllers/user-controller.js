@@ -84,7 +84,7 @@ class UserController {
                 if (!user) {
                     return res.status(401).json({ errors: "Usuário não registrado" });
                 }
-                return res.json({ delete: true });
+                return res.json({ deleted: true });
             })
             .catch(next);
     }
