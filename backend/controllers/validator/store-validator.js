@@ -8,11 +8,11 @@ module.exports = (req, res, next) => {
     const { store } = req.query;
     if (!store) return res.sendStatus(401);
     User.findById(req.payload.id)
-        .then((user) => {
+        .then(user => {
             if (!user) return res.sendStatus(401);
             if (!user.store) return res.sendStatus(401);
             if (!user.permission.includes("admin")) return res.sendStatus(401);
-            if (user.store !== store) return res.sendStatus(401);
+            if (user.store.toString() !== store) return res.sendStatus(401);
             next();
         })
         .catch(next);
