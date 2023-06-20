@@ -20,14 +20,6 @@ class StoreController {
     store(req, res, next) {
         const { name, cnpj, email, phone, address } = req.body;
 
-        const error = [];
-        if (!name) error.push('name');
-        if (!cnpj) error.push('cnpj');
-        if (!email) error.push('email');
-        if (!phone) error.push('phone');
-        if (!address) error.push('address');
-        if (error.length > 0) return res.status(422).json({ error: 'required', payload: error });
-
         const store = new Store({ name, cnpj, email, phone, address });
         store.save().then(() => res.send({ store })).catch(next);
 
@@ -36,7 +28,9 @@ class StoreController {
     //PUT /
     update(req, res, next) {
         const { name, cnpj, email, phone, address } = req.body;
-        Store.findById(req.params.id)
+        const storeId = req.query.store; // Obtém o ID da loja do parâmetro de consulta
+
+        Store.findById(storeId)
             .then((store) => {
                 if (!store) return res.status(422).send({ error: 'Loja não existe.' });
 
@@ -53,9 +47,10 @@ class StoreController {
             .catch(next);
     }
 
+
     //DELETE /:id /
     remove(req, res, next) {
-        Store.findByIdAndRemove(req.params.id)
+        Store.findByIdAndRemove(req.query.store)
             .then((store) => {
                 if (!store) {
                     return res.status(401).json({ errors: "Loja não existe" });
