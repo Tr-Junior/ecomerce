@@ -1,16 +1,19 @@
 const router = require('express').Router();
-const storeValidator = require('../../../controllers/validator/store-validator')
+
 const auth = require('../../auth');
 const StoreController = require('../../../controllers/store-controller');
+
+const { validate } = require('express-validation');
+const { StoreValidator } = require('../../../controllers/validator/store-validator');
 
 const storeController = new StoreController();
 
 router.get('/', storeController.index);
-router.get('/:id', storeController.show);
+router.get('/:id', validate(StoreValidator.show), storeController.show);
 
 router.post('/', auth.required, storeController.store);
-router.put('/:id', auth.required, storeValidator, storeController.update);
-router.delete('/:id', auth.required, storeValidator, storeController.remove);
+router.put('/', auth.required, StoreValidator.admin, validate(StoreValidator.update), storeController.update);
+router.delete('/', auth.required, StoreValidator.admin, storeController.remove);
 
 
 
