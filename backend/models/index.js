@@ -1,2 +1,4 @@
+require('./store');
 require('./user');
-require('./store')
+require('./customer');
+
