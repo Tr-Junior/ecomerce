@@ -4,6 +4,7 @@ const customer = require('../models/customer');
 const Customer = mongoose.model('Customer');
 const User = mongoose.model('User');
 
+
 class CustomerController {
 
     //GET / index
@@ -13,7 +14,7 @@ class CustomerController {
             const limit = Number(req.query.limit) || 30;
             const customer = await Customer.paginate(
                 { store: req.query.store },
-                { offset: offset, populate: 'user' }
+                { limit, offset, populate: { path: 'user', select: '-salt -hash' } }
             );
             return res.send({ customer });
         } catch (e) {
@@ -28,20 +29,21 @@ class CustomerController {
 
     //GET search/:search
 
-    async search(res, req, next) {
+    async search(req, res, next) {
         const offset = Number(req.query.offset) || 0;
         const limit = Number(req.query.limit) || 30;
-        const search = new RegExp(req.params.search, 'i');
+        const search = new RegExp(req.query.search, 'i');
         try {
             const customer = await Customer.paginate(
-                { store: req.query.store, nameL: { $regex: search } },
-                { offset: offset, populate: 'user' }
+                { store: req.query.store, name: { $regex: search } },
+                { limit, offset, populate: { path: 'user', select: '-salt -hash' } }
             );
             return res.send({ customer });
         } catch (e) {
             next(e);
         }
     }
+
 
     //GET /admin/:id
 
@@ -65,7 +67,7 @@ class CustomerController {
             birthDate
         } = req.body;
         try {
-            const Customer = await Customer.findById(req.params.id).populate('user');
+            const customer = await Customer.findById(req.params.id).populate({ path: 'user', select: '-salt -hash' });
             if (name) {
                 customer.user.name = name;
                 customer.name = name;
@@ -75,6 +77,7 @@ class CustomerController {
             if (phone) customer.user.phone = phone;
             if (address) customer.user.address = address;
             if (birthDate) customer.birthDate = birthDate;
+            await customer.user.save();
             await customer.save();
             return res.send({ customer });
         } catch (e) {
@@ -87,8 +90,8 @@ class CustomerController {
     async show(req, res, next) {
         try {
             const customer = await Customer.findOne(
-                { user: req.payload.id, store: req.query.store },
-            ).populate('user');
+                { user: req.params.id, store: req.query.store },
+            ).populate({ path: 'user', select: '-salt -hash' });
             return res.send({ customer });
         } catch (e) {
             next(e);
@@ -117,20 +120,24 @@ class CustomerController {
             phone,
             address,
             birthDate,
-            user: user._id
+            user: user._id,
+            store
         });
+        try {
+            await user.save();
+            await customer.save();
 
-        await user.save();
-        await customer.save();
-
-        return res.send({
-            customer: Object.assign(
-                {},
-                customer._doc,
-                {
-                    email: user.email
-                })
-        });
+            return res.send({
+                customer: Object.assign(
+                    {},
+                    customer._doc,
+                    {
+                        email: user.email
+                    })
+            });
+        } catch (e) {
+            next(e);
+        }
     }
 
 
@@ -147,7 +154,8 @@ class CustomerController {
             password
         } = req.body;
         try {
-            const customer = await Customer.findById(req.payload.id).populate('user');
+            const customer = await Customer.findOne({ user: req.params.id }).populate({ path: 'user', select: '-salt -hash' });
+            if (!customer) return res.send({ error: "Cliente não encontrado" })
             if (name) {
                 customer.user.name = name;
                 customer.name = name;
@@ -159,6 +167,11 @@ class CustomerController {
             if (address) customer.user.address = address;
             if (birthDate) customer.birthDate = birthDate;
             await customer.save();
+            customer.user = {
+                email: customer.user.email,
+                _id: customer.user._id,
+                permission: customer.user.permission
+            }
             res.send({ customer });
         }
         catch (e) {
